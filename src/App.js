@@ -1,10 +1,16 @@
 import React, { Component } from 'react';
 import Particles from 'react-particles-js';
+import Clarifai from 'clarifai';
+import FaceRecognition from './components/facerecognition/FaceRecognition';
 import Navigation from './components/navigation/Navigation';
 import Logo from './components/logo/Logo';
 import ImageLinkForm from './components/imagelinkform/ImageLinkForm';
 import Rank from './components/rank/Rank';
 import './App.css';
+
+const app = new Clarifai.App({
+ apiKey: 'f64e4e2d09644455971807f31c66d9ba'
+});
 
 const particlesOptions ={
   "particles": {
@@ -15,29 +21,6 @@ const particlesOptions ={
         "value_area": 721.0787337857429
       }
     },
-  //   "color": {
-  //     "value": "#ffffff"
-  //   },
-  //   "opacity": {
-  //     "value": 0.5,
-  //     "random": false,
-  //     "anim": {
-  //       "enable": false,
-  //       "speed": 1,
-  //       "opacity_min": 0.1,
-  //       "sync": false
-  //     }
-  //   },
-  //   "size": {
-  //     "value": 3,
-  //     "random": true,
-  //     "anim": {
-  //       "enable": false,
-  //       "speed": 3.2,
-  //       "size_min": 0.1,
-  //       "sync": false
-  //     }
-  //   },
     "line_linked": {
       "enable": true,
       "distance": 150,
@@ -45,25 +28,39 @@ const particlesOptions ={
       "opacity": 0.4,
       "width": 1
     },
-  //   "move": {
-  //     "enable": true,
-  //     "speed": 3,
-  //     "direction": "none",
-  //     "random": false,
-  //     "straight": false,
-  //     "out_mode": "out",
-  //     "bounce": false,
-  //     "attract": {
-  //       "enable": false,
-  //       "rotateX": 600,
-  //       "rotateY": 1200
-  //     }
-  //   }
-  // },
   "retina_detect": true
 }}
 
 class App extends Component {
+  constructor(){
+    super();
+    this.state = {
+      input: '',
+      imageUrl: ''
+    }
+  }
+
+onInputChange = (event) => {
+  console.log(event.target.value);
+  this.setState({input: event.target.value})
+}
+
+onButtonSubmit = () => {
+  this.setState({imageUrl: this.state.input});
+  app.models.predict(
+    Clarifai.COLOR_MODEL,
+    this.state.input)
+  .then(resp => {
+    // do something with response
+    console.log(resp);
+    },
+    function(err) {
+      console.log('Error!', err);
+    }
+  );
+  console.log(this.state.input, this.state.imageUrl);
+}
+
   render() {
     return (
       <div className="App">
@@ -74,8 +71,8 @@ class App extends Component {
       <Navigation />
         <Logo />
         <Rank />
-        <ImageLinkForm />
-        {  /*<FaceRecognition />*/}
+        <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit} />
+        <FaceRecognition imageUrl={this.state.imageUrl}/>
       </div>
     );
   }
