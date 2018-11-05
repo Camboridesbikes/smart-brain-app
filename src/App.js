@@ -10,7 +10,7 @@ import ImageLinkForm from './components/imagelinkform/ImageLinkForm';
 import Rank from './components/rank/Rank';
 import './App.css';
 
-const app = new Clarifai.App({apiKey: 'f64e4e2d09644455971807f31c66d9ba'});
+
 
 const particlesOptions = {
   "particles": {
@@ -31,37 +31,34 @@ const particlesOptions = {
     "retina_detect": true
   }
 }
+const initialState = {
+  input: '',
+  imageUrl: '',
+  box: {},
+  route: 'signin',
+  isSignedIn: false,
+  user: {
+    id: '',
+    name: '',
+    email: '',
+    password: '',
+    entries: '',
+    joined: ''
+  }
+}
 
 class App extends Component {
   constructor() {
     super();
-    this.state = {
-      input: '',
-      imageUrl: '',
-      box: {},
-      route: 'signin',
-      isSignedIn: false,
-      user: {
-        id: '',
-        name: '',
-        email: '',
-        password: '',
-        entries: 0,
-        joined: ''
-      }
-    }
+    this.state = initialState
   }
-
-  // componentDidMount(){
-  //   fetch('http://localhost:4000').then(resp => resp.json()).then(console.log)
-  // }
 
   loadUser = (data) => {
     this.setState({user: {
       id: data.id,
       name: data.name,
       email: data.email,
-      entries: 0,
+      entries: data.entries,
       joined: data.joined,
     }})
   }
@@ -88,10 +85,17 @@ class App extends Component {
 
   onButtonSubmit = () => {
     this.setState({imageUrl: this.state.input});
-    app.models.predict("a403429f2ddf4b49b307e318f00e528b", this.state.input)
+    fetch('https://afternoon-meadow-71062.herokuapp.com/imageurl', {
+      method: 'post',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        input: this.state.input
+      })
+    })
+      .then(resp => resp.json())
       .then(resp => {
         if (resp){
-          fetch('http://localhost:4000/image', {
+          fetch('https://afternoon-meadow-71062.herokuapp.com/image', {
             method: 'put',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -102,6 +106,7 @@ class App extends Component {
             .then(count => {
               this.setState(Object.assign(this.state.user, {entries: count}))
             })
+            .catch(console.log)
         }
         this.displayFaceBox(this.calculateFaceLocation(resp))
       }).catch(err => {
@@ -111,9 +116,9 @@ class App extends Component {
 
   onRouteChange = (route) => {
     if (route === 'signin') {
-      this.setState({isSignedIn: false})
+      this.setState({initialState});
     } else if (route === 'home') {
-      this.setState({isSignedIn: true})
+      this.setState({isSignedIn: true});
     }
     this.setState({route: route});
   }
