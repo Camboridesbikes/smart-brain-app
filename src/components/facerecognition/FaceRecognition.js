@@ -4,7 +4,7 @@ import './FaceRecognition.css';
 const FaceRecognition = ({imageUrl, box}) => {
   return !imageUrl ?
     <div className='center ma'>
-      <p className='f4'>Who's there?</p>
+      <p className='f4'>Paste a link to your picture's URL in the box.</p>
     </div>
    :
   (
