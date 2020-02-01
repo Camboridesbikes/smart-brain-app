@@ -31,6 +31,7 @@ const particlesOptions = {
     "retina_detect": true
   }
 }
+
 const initialState = {
   input: '',
   imageUrl: '',
@@ -50,7 +51,7 @@ const initialState = {
 class App extends Component {
   constructor() {
     super();
-    this.state = initialState
+    this.state = initialState;
   }
 
   loadUser = (data) => {
@@ -116,7 +117,8 @@ class App extends Component {
 
   onRouteChange = (route) => {
     if (route === 'signin') {
-      this.setState({initialState});
+      this.setState(initialState);
+      console.log(route);
     } else if (route === 'home') {
       this.setState({isSignedIn: true});
     }
